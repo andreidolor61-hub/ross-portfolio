@@ -294,20 +294,222 @@
         }
 
         .avatar {
-            width: 300px;
-            height: 300px;
+            --lens-x: 50%;
+            --lens-y: 50%;
+            --reveal-size: 150px;
+            position: relative;
+            width: min(100%, 360px);
+            aspect-ratio: 4 / 5;
             margin: 0 auto;
-            border-radius: 50%;
-            border: 4px solid var(--blue);
+            border-radius: 18px;
+            border: 3px solid var(--blue);
             overflow: hidden;
-            box-shadow: 0 10px 40px rgba(0, 31, 63, 0.1);
-            animation: float 3s ease-in-out infinite;
+            background: rgba(255, 255, 255, 0.72);
+            box-shadow: 0 16px 45px rgba(0, 31, 63, 0.16);
+            transition: border-color 0.35s ease, box-shadow 0.35s ease, background 0.35s ease;
+            cursor: crosshair;
+            touch-action: pan-y;
+        }
+
+        .avatar::before,
+        .avatar::after {
+            content: '';
+            position: absolute;
+            left: var(--lens-x);
+            top: var(--lens-y);
+            z-index: 4;
+            pointer-events: none;
+            border-radius: 50%;
+            opacity: 0;
+            transform: translate(-50%, -50%) scale(0.72);
+            filter: blur(22px);
+            mix-blend-mode: screen;
+            transition:
+                opacity 0.28s ease,
+                transform 0.45s ease;
+        }
+
+        .avatar::before {
+            width: 125px;
+            height: 125px;
+            background:
+                radial-gradient(circle at 35% 38%,
+                    rgba(255, 255, 255, 0.46) 0%,
+                    rgba(90, 169, 255, 0.25) 24%,
+                    rgba(51, 153, 255, 0.12) 48%,
+                    transparent 72%);
+            animation: profileSmokeDriftOne 3.2s ease-in-out infinite;
+        }
+
+        .avatar::after {
+            width: 165px;
+            height: 165px;
+            background:
+                radial-gradient(circle at 62% 58%,
+                    rgba(220, 235, 255, 0.3) 0%,
+                    rgba(116, 92, 255, 0.18) 28%,
+                    rgba(0, 102, 204, 0.08) 52%,
+                    transparent 74%);
+            animation: profileSmokeDriftTwo 4.1s ease-in-out infinite;
+        }
+
+        .avatar.is-hovering::before,
+        .avatar.is-hovering::after,
+        .avatar:focus-visible::before,
+        .avatar:focus-visible::after {
+            opacity: 0.9;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @keyframes profileSmokeDriftOne {
+            0%, 100% {
+                margin-left: -12px;
+                margin-top: 8px;
+                filter: blur(20px);
+            }
+            50% {
+                margin-left: 14px;
+                margin-top: -10px;
+                filter: blur(28px);
+            }
+        }
+
+        @keyframes profileSmokeDriftTwo {
+            0%, 100% {
+                margin-left: 14px;
+                margin-top: -8px;
+                filter: blur(28px);
+            }
+            50% {
+                margin-left: -16px;
+                margin-top: 12px;
+                filter: blur(36px);
+            }
+        }
+
+        .avatar:hover,
+        .avatar:focus-visible {
+            border-color: var(--blue-light);
+            box-shadow: 0 22px 55px rgba(0, 102, 204, 0.24);
+            outline: none;
         }
 
         .avatar img {
+            position: absolute;
+            inset: 0;
             width: 100%;
             height: 100%;
             object-fit: cover;
+            object-position: center top;
+            pointer-events: none;
+            user-select: none;
+        }
+
+        .avatar .profile-default {
+            z-index: 1;
+            opacity: 1;
+        }
+
+        .avatar .profile-hover-light,
+        .avatar .profile-hover-dark {
+            z-index: 2;
+            opacity: 0;
+            -webkit-mask-image:
+                radial-gradient(
+                    circle var(--reveal-size) at var(--lens-x) var(--lens-y),
+                    rgba(0, 0, 0, 1) 0%,
+                    rgba(0, 0, 0, 0.92) 24%,
+                    rgba(0, 0, 0, 0.62) 48%,
+                    rgba(0, 0, 0, 0.22) 68%,
+                    transparent 88%
+                );
+            mask-image:
+                radial-gradient(
+                    circle var(--reveal-size) at var(--lens-x) var(--lens-y),
+                    rgba(0, 0, 0, 1) 0%,
+                    rgba(0, 0, 0, 0.92) 24%,
+                    rgba(0, 0, 0, 0.62) 48%,
+                    rgba(0, 0, 0, 0.22) 68%,
+                    transparent 88%
+                );
+            -webkit-mask-repeat: no-repeat;
+            mask-repeat: no-repeat;
+            transition: opacity 0.22s ease;
+        }
+
+        body:not(.dark-mode) .avatar.is-hovering .profile-hover-light,
+        body:not(.dark-mode) .avatar:focus-visible .profile-hover-light {
+            opacity: 1;
+        }
+
+        body.dark-mode .avatar.is-hovering .profile-hover-dark,
+        body.dark-mode .avatar:focus-visible .profile-hover-dark {
+            opacity: 1;
+        }
+
+        .avatar.is-hovering .profile-hover-light,
+        .avatar.is-hovering .profile-hover-dark {
+            animation: profileRevealBreathe 2.6s ease-in-out infinite;
+        }
+
+        @keyframes profileRevealBreathe {
+            0%, 100% {
+                filter: saturate(1) contrast(1);
+            }
+            50% {
+                filter: saturate(1.08) contrast(1.04);
+            }
+        }
+
+        body.dark-mode .avatar {
+            background: rgba(16, 31, 52, 0.9);
+            border-color: #5aa9ff;
+            box-shadow: 0 16px 45px rgba(0, 0, 0, 0.34);
+        }
+
+        body.dark-mode .avatar:hover,
+        body.dark-mode .avatar:focus-visible {
+            border-color: #8bc5ff;
+            box-shadow: 0 22px 58px rgba(90, 169, 255, 0.2);
+        }
+
+        body.dark-mode .avatar::before {
+            background:
+                radial-gradient(circle at 35% 38%,
+                    rgba(139, 197, 255, 0.42) 0%,
+                    rgba(90, 169, 255, 0.24) 26%,
+                    rgba(85, 71, 210, 0.14) 50%,
+                    transparent 74%);
+        }
+
+        body.dark-mode .avatar::after {
+            background:
+                radial-gradient(circle at 62% 58%,
+                    rgba(210, 225, 255, 0.24) 0%,
+                    rgba(126, 94, 255, 0.2) 30%,
+                    rgba(34, 89, 160, 0.1) 54%,
+                    transparent 76%);
+        }
+
+        @media (max-width: 768px) {
+            .avatar {
+                width: min(100%, 320px);
+            }
+        }
+
+        @media (hover: none) {
+            .avatar {
+                cursor: default;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .avatar::before,
+            .avatar::after,
+            .avatar .profile-hover-light,
+            .avatar .profile-hover-dark {
+                animation: none !important;
+            }
         }
 
         .about-content h2 {
@@ -1159,8 +1361,8 @@
 
         .skeleton-avatar {
             width: 290px;
-            height: 290px;
-            border-radius: 50%;
+            height: 360px;
+            border-radius: 18px;
             margin: 0 auto;
         }
 
@@ -1258,7 +1460,7 @@
 
             .skeleton-avatar {
                 width: 230px;
-                height: 230px;
+                height: 288px;
             }
 
             .skeleton-card-grid {
@@ -1447,8 +1649,13 @@
 
     <!-- About Section -->
     <section id="about" class="about">
-        <div class="avatar">
-            <img src="me1.png" alt="Portfolio Avatar" onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=400&h=400&fit=crop&crop=face';" />
+        <div class="avatar" id="profileLens" tabindex="0" aria-label="Profile photo with interactive image preview">
+            <img src="me1.png" class="profile-default" alt="Ross Andrei Dolor"
+                 onerror="this.src='https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=720&h=900&fit=crop&crop=face';" />
+            <img src="me12.JPG" class="profile-hover-light" alt="" aria-hidden="true"
+                 onerror="this.src='me1.png';" />
+            <img src="me111.jpg" class="profile-hover-dark" alt="" aria-hidden="true"
+                 onerror="this.src='me1.png';" />
         </div>
         <div class="about-content">
             <h2>About Me</h2>
@@ -1927,12 +2134,56 @@
             }, { once: true });
         }
 
+        // Interactive Profile Lens
+        function initializeProfileLens() {
+            const avatar = document.getElementById('profileLens');
+            if (!avatar) return;
+
+            const updateLensPosition = (clientX, clientY) => {
+                const rect = avatar.getBoundingClientRect();
+                const rawX = clientX - rect.left;
+                const rawY = clientY - rect.top;
+
+                const x = Math.min(Math.max(rawX, 0), rect.width);
+                const y = Math.min(Math.max(rawY, 0), rect.height);
+
+                avatar.style.setProperty('--lens-x', `${x}px`);
+                avatar.style.setProperty('--lens-y', `${y}px`);
+            };
+
+            avatar.addEventListener('pointerenter', (event) => {
+                if (event.pointerType === 'touch') return;
+                avatar.classList.add('is-hovering');
+                updateLensPosition(event.clientX, event.clientY);
+            });
+
+            avatar.addEventListener('pointermove', (event) => {
+                if (event.pointerType === 'touch') return;
+                avatar.classList.add('is-hovering');
+                updateLensPosition(event.clientX, event.clientY);
+            });
+
+            avatar.addEventListener('pointerleave', () => {
+                avatar.classList.remove('is-hovering');
+            });
+
+            avatar.addEventListener('focus', () => {
+                avatar.style.setProperty('--lens-x', '50%');
+                avatar.style.setProperty('--lens-y', '50%');
+            });
+
+            avatar.addEventListener('blur', () => {
+                avatar.classList.remove('is-hovering');
+            });
+        }
+
         // DOM Ready Function
         document.addEventListener('DOMContentLoaded', function() {
             console.log('Portfolio website loaded successfully');
 
             initializeTheme();
             initializeShaderBackground();
+            initializeProfileLens();
             
             // Mobile Menu Toggle
             const menuBtn = document.getElementById('menuBtn');
